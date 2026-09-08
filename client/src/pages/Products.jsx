@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Eye, RefreshCw, AlertTriangle, ArrowUpDown, Package } from 'lucide-react';
 import api from '../services/api';
 import StockUpdateModal from '../components/StockUpdateModal';
 
 const Products = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Pagination & Filters
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -38,10 +39,10 @@ const Products = () => {
     }
     setSearchParams(searchParams);
   };
-  
+
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   // Confirmation Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -98,8 +99,8 @@ const Products = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-        <Link 
-          to="/products/new" 
+        <Link
+          to="/products/new"
           className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           <Plus size={20} className="mr-2" />
@@ -110,9 +111,9 @@ const Products = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center bg-gray-50">
           <form onSubmit={handleSearchSubmit} className="relative w-full md:w-96">
-            <input 
-              type="text" 
-              placeholder="Search products..." 
+            <input
+              type="text"
+              placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -120,10 +121,10 @@ const Products = () => {
             <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
             <button type="submit" className="hidden">Search</button>
           </form>
-          
+
           <div className="flex flex-col sm:flex-row w-full md:w-auto gap-4">
-            <select 
-              value={category} 
+            <select
+              value={category}
               onChange={(e) => { setCategory(e.target.value); setPage(1); }}
               className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -132,9 +133,9 @@ const Products = () => {
               <option value="Audio">Audio</option>
               <option value="Accessories">Accessories</option>
             </select>
-            
-            <select 
-              value={status} 
+
+            <select
+              value={status}
               onChange={handleStatusChange}
               className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -174,7 +175,7 @@ const Products = () => {
                 {products.map((product) => {
                   let statusText = 'In Stock';
                   let statusColor = 'bg-green-100 text-green-800';
-                  
+
                   if (product.stock === 0) {
                     statusText = 'Out of Stock';
                     statusColor = 'bg-red-100 text-red-800';
@@ -184,7 +185,11 @@ const Products = () => {
                   }
 
                   return (
-                    <tr key={product._id} className="bg-white border-b hover:bg-gray-50">
+                    <tr 
+                      key={product._id} 
+                      className="bg-white border-b hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/products/${product._id}`)}
+                    >
                       <td className="px-6 py-4 flex items-center">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center mr-3">
                           {product.image?.url ? (
@@ -204,7 +209,7 @@ const Products = () => {
                           {statusText}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right space-x-2">
+                      <td className="px-6 py-4 text-right space-x-2" onClick={(e) => e.stopPropagation()}>
                         <Link to={`/products/${product._id}`} className="text-gray-500 hover:text-gray-700" title="View">
                           <Eye size={18} className="inline" />
                         </Link>
@@ -225,7 +230,7 @@ const Products = () => {
             </table>
           </div>
         )}
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="p-4 border-t border-gray-100 flex items-center justify-between bg-white">
@@ -233,14 +238,14 @@ const Products = () => {
               Page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
             </span>
             <div className="space-x-2">
-              <button 
+              <button
                 disabled={page === 1}
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
-              <button 
+              <button
                 disabled={page === totalPages}
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -253,10 +258,10 @@ const Products = () => {
       </div>
 
       {stockModalOpen && selectedProduct && (
-        <StockUpdateModal 
-          product={selectedProduct} 
-          onClose={() => setStockModalOpen(false)} 
-          onSuccess={handleStockUpdateSuccess} 
+        <StockUpdateModal
+          product={selectedProduct}
+          onClose={() => setStockModalOpen(false)}
+          onSuccess={handleStockUpdateSuccess}
         />
       )}
 
@@ -271,13 +276,13 @@ const Products = () => {
               Are you sure you want to delete <strong>{productToDelete?.name}</strong>? This action cannot be undone.
             </p>
             <div className="flex gap-4">
-              <button 
+              <button
                 onClick={() => setDeleteModalOpen(false)}
                 className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleDelete}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700"
               >
