@@ -7,9 +7,19 @@ const generateToken = require('../utils/generateToken');
 const authUser = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Please provide email and password');
+  }
+
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found. Please register first');
+  }
+
+  if (await user.matchPassword(password)) {
     res.json({
       success: true,
       data: {
@@ -22,7 +32,7 @@ const authUser = async (req, res) => {
     });
   } else {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error('Invalid password');
   }
 };
 
