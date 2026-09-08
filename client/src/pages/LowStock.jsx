@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, Package, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 import StockUpdateModal from '../components/StockUpdateModal';
 
 const LowStock = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -63,7 +64,11 @@ const LowStock = () => {
         ) : (
           <div className="divide-y divide-gray-100">
             {products.map((product) => (
-              <div key={product._id} className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-orange-50/50 transition-colors">
+              <div 
+                key={product._id} 
+                className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-orange-50/50 transition-colors cursor-pointer"
+                onClick={() => navigate(`/products/${product._id}`)}
+              >
                 <div className="flex items-center mb-4 sm:mb-0">
                   <div className="w-16 h-16 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center mr-4">
                     {product.image?.url ? (
@@ -91,7 +96,7 @@ const LowStock = () => {
                   </div>
                   
                   <button 
-                    onClick={() => openStockModal(product)}
+                    onClick={(e) => { e.stopPropagation(); openStockModal(product); }}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 shadow-sm rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
                   >
                     <RefreshCw size={16} />
