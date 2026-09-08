@@ -6,7 +6,9 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
-    "seed": "cd server && npm run seed"
+    "seed": "cd server && npm run seed",
+    "postinstall": "cd server && npm install",
+    "start": "cd server && npm start"
   },
   "keywords": [],
   "author": "",
